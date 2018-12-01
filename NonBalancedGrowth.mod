@@ -1,7 +1,7 @@
 @#define ValueFunction          = 0
 @#define RandomParamInit        = 1
 @#define IRFLength              = 40
-@#define Estimation             = 1
+@#define Estimation             = 0
 @#define CMAES                  = 1
 @#define Detrend                = 0
 @#define LoadCurrentBest        = 1
@@ -802,7 +802,8 @@ end;
 
 @#endif
 
-options_.qz_criterium = 1 + 2e-6;
+options_.qz_criterium = 1 + 1e-5;
+options_.endogenous_qz_criterium = 1;
 
 steady;
 
