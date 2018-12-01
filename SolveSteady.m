@@ -20,8 +20,12 @@ function Y_ = SolveSteady( hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_,
 
         if any( isfinite( Resids ) )
             DSignResids = diff( sign( Resids ) );
-            Change = find( ( DSignResids ~= 0 ) & isfinite( DSignResids ), 1 );
-            if ~isempty( Change )
+            Changes = find( ( DSignResids ~= 0 ) & isfinite( DSignResids ) );
+            if length( Changes ) > 1
+                warning( 'Multiple solutions!' );
+            end
+            if ~isempty( Changes )
+                Change = Changes( 1 );
                 Interval = StartPoints( [ Change, Change + 1 ] );
 
                 try
