@@ -4,47 +4,56 @@ function Y_ = SolveSteady( hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_,
         error( 'Non-finite input.' );
     end
 
-    Limit = 5;
-    Step  = 2;
-    
-    Problem = true;
-    
-    while Problem && Limit < 500
-        
-        Limit = 2 * Limit;
-        Step  = 0.5 * Step;
-        
-        StartPoints = (-Limit) : Step : Limit;
-
-        Resids = GetResids( StartPoints, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ );
-
-        if any( isfinite( Resids ) )
-            DSignResids = diff( sign( Resids ) );
-            Changes = find( ( DSignResids ~= 0 ) & isfinite( DSignResids ) );
-            if length( Changes ) > 1
-                warning( 'Multiple solutions!' );
-            end
-            if ~isempty( Changes )
-                Change = Changes( 1 );
-                Interval = StartPoints( [ Change, Change + 1 ] );
-
-                try
-                    Solution = fzero( @( In ) GetResids( In, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ ), ...
-                       Interval, optimset( 'Display', 'off' ) );
-                    Problem = false;
-                catch
-                end
-            end
-        end
-        
-    end
-    
-    if Problem
-        error( 'Failed to find a steady-state.' );
-    end
+    Solution = SolveSteadyInternal( -10, 10, 21, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ );
     
     Y_ = exp( Solution );
     
+end
+
+function Solution = SolveSteadyInternal( LB, UB, NPoints, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ )
+
+    if NPoints > 10000
+        error( 'Failed to find the steady state.' );
+    end
+    
+    StartPoints = linspace( LB, UB, NPoints );
+        
+    Resids = GetResids( StartPoints, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ );
+
+    if ~any( isfinite( Resids ) )
+        
+        Solution = SolveSteadyInternal( LB - ( UB - LB ), UB + ( UB - LB ), 3 * NPoints, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ );
+        return
+        
+    end
+        
+    DSignResids = diff( sign( Resids ) );
+    Changes = find( ( DSignResids ~= 0 ) & ( ~isnan( DSignResids ) ) );
+    
+    if length( Changes ) > 1
+        warning( 'Multiple solutions!' );
+    end
+    
+    if isempty( Changes )
+        [ ~, BestIndex ] = min( abs( Resids ) );
+        if BestIndex == 1
+            Solution = SolveSteadyInternal( LB - ( UB - LB ), StartPoints( 2 ), 2 * NPoints, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ );
+        elseif BestIndex == length( StartPoints )
+            Solution = SolveSteadyInternal( StartPoints( end - 1 ), UB + ( UB - LB ), 2 * NPoints, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ );
+        elseif isnan( Resids( BestIndex + 1 ) ) && ( ~isnan( Resids( BestIndex - 1 ) ) )
+            Solution = SolveSteadyInternal( StartPoints( BestIndex ), StartPoints( BestIndex + 1 ), NPoints, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ );
+        elseif isnan( Resids( BestIndex - 1 ) ) && ( ~isnan( Resids( BestIndex + 1 ) ) )
+            Solution = SolveSteadyInternal( StartPoints( BestIndex - 1 ), StartPoints( BestIndex ), NPoints, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ );
+        else
+            Solution = SolveSteadyInternal( StartPoints( BestIndex - 1 ), StartPoints( BestIndex + 1 ), NPoints, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ );
+        end
+    else
+        Change = Changes( 1 );
+        Interval = StartPoints( [ Change, Change + 1 ] );
+        Solution = fzero( @( In ) GetResids( In, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ ), ...
+           Interval, optimset( 'Display', 'off' ) );
+    end
+
 end
 
 function Out = GetResids( In, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ )
