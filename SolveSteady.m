@@ -45,7 +45,8 @@ function Solution = SolveSteadyInternal( LB, UB, NPoints, hBar, kappa, nu, aX, a
         elseif isnan( Resids( BestIndex - 1 ) ) && ( ~isnan( Resids( BestIndex + 1 ) ) )
             Solution = SolveSteadyInternal( StartPoints( BestIndex - 1 ), StartPoints( BestIndex ), NPoints, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ );
         else
-            Solution = SolveSteadyInternal( StartPoints( BestIndex - 1 ), StartPoints( BestIndex + 1 ), NPoints, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ );
+            Solution = fminbnd( @( In ) abs( GetResids( In, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ ) ), ...
+                StartPoints( BestIndex - 1 ), StartPoints( BestIndex + 1 ), optimset( 'Display', 'off' ) );
         end
     else
         Change = Changes( 1 );
