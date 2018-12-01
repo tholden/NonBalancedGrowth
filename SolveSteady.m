@@ -22,7 +22,7 @@ function Solution = SolveSteadyInternal( LB, UB, NPoints, hBar, kappa, nu, aX, a
 
     if ~any( isfinite( Resids ) )
         
-        Solution = SolveSteadyInternal( LB - ( UB - LB ), UB + ( UB - LB ), 3 * NPoints, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ );
+        Solution = SolveSteadyInternal( LB - ( UB - LB ), UB + ( UB - LB ), 4 * NPoints, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, N_, delta_, xi_, Omega_, PY_, PC_, PI_, PG_, PE_, AZ_, AL_, AC_, AG_, AK_, AH_, H0_, Kt0_, h0, C0, G0, N0, AZ0, AL0, AC0, AG0, AK0, AH0, tauGE_, tauE_, tauH_, tauC_, tauK_, tauI_ );
         return
         
     end
