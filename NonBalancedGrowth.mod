@@ -43,7 +43,7 @@ U0        = 0.80977743586948125464886061308789066970348358154296875;
 @#define EndoVariables = EndoVariables + [ "C", "0", "Inf" ]
 @#define EndoVariables = EndoVariables + [ "I", "0", "Inf" ]
 @#define EndoVariables = EndoVariables + [ "G", "0", "Inf" ]
-@#define EndoVariables = EndoVariables + [ "E", "0", "Inf" ]
+@#define EndoVariables = EndoVariables + [ "E", "-Inf", "Inf" ]
 
 @#define EndoVariables = EndoVariables + [ "K", "0", "Inf" ]
 @#define EndoVariables = EndoVariables + [ "R", "0", "Inf" ]
@@ -527,9 +527,9 @@ model;
     
     log( W ) = log( ( 1 - aY ) * PY / PC * Y0 * ( Y / Y0 ) ^ ( 1 / sY ) * ( AH * Ht / AH0 / H0 ) ^ ( ( sY - 1 ) / sY ) / ( Ht ) );
     
-    log( G ) = log( tauGE * ( 1 - tauE ) * PY * Y / PG );
+    log( G ) = log( ( 1 + tauGE ) / 2 * ( 1 - tauE ) * PY * Y / PG );
     
-    log( E ) = log( tauGE * tauE * PY * Y / PE );
+    E = ( 1 + tauGE ) / 2 * tauE * PY * Y / PE;
     
     log( NGDP ) = log( PC * C + PI * I + PG * G + PE * E );
     
@@ -683,8 +683,8 @@ steady_state_model;
         I_ = ( aY * PY_ / PK_ ) ^ sY * ( Y_ ) * ( AK_ / 1 / Kt0_ ) ^ ( sY - 1 ) / ( U_ * ( ( 1 - delta_ / 2 ) / delta_ * Omega_ + kappa * Omega_ ) ) / SR_ ^ sY;
         K_ = ( 1 - delta_ / 2 ) / delta_ * Omega_ * I_;
         Kt_ = U_ * ( K_ + kappa * Omega_ * I_ );
-        G_ = tauGE_ * ( 1 - tauE_ ) * PY_ * Y_ / PG_;
-        E_ = tauGE_ * tauE_ * PY_ * Y_ / PE_;
+        G_ = ( 1 + tauGE_ ) / 2 * ( 1 - tauE_ ) * PY_ * Y_ / PG_;
+        E_ = ( 1 + tauGE_ ) / 2 * tauE_ * PY_ * Y_ / PE_;
         C_ = max( 1e-8, 1 / PC_ * ( PY_ * Y_ - ( PI_ * I_ + PG_ * G_ + PE_ * E_ - xi_ * log( 1 - U_ ^ nu ) * PK_ * K_ ) ) );
         Z_ = ( aZ * ( AC_ * C_ * N0 / 1 / N_ / C0 ) ^ ( ( sZ - 1 ) / sZ ) + ( 1 - aZ ) * ( AG_ * G_ * N0 / 1 / N_ / G0 ) ^ ( ( sZ - 1 ) / sZ ) ) ^ ( sZ / ( sZ - 1 ) );
         X_ = ( aX * ( AZ_ * Z_ / 1 ) ^ ( ( sX - 1 ) / sX ) + ( 1 - aX ) * ( AL_ * max( 1e-8, hBar - h_ ) / 1 / ( hBar - h0 ) ) ^ ( ( sX - 1 ) / sX ) ) ^ ( sX / ( sX - 1 ) );
