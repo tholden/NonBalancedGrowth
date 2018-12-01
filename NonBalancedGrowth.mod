@@ -489,8 +489,8 @@ model;
     #Z = Z0 * ( aZ * ( AC * C * N0 / AC0 / N / C0 ) ^ ( ( sZ - 1 ) / sZ ) + ( 1 - aZ ) * ( AG * G * N0 / AG0 / N / G0 ) ^ ( ( sZ - 1 ) / sZ ) ) ^ ( sZ / ( sZ - 1 ) );
     #Z_LEAD = Z0 * ( aZ * ( AC_LEAD * C_LEAD * N0 / AC0 / N_LEAD / C0 ) ^ ( ( sZ - 1 ) / sZ ) + ( 1 - aZ ) * ( AG_LEAD * G_LEAD * N0 / AG0 / N_LEAD / G0 ) ^ ( ( sZ - 1 ) / sZ ) ) ^ ( sZ / ( sZ - 1 ) );
 
-    #X = X0 * ( aX * ( AZ * Z / AZ0 / Z0 ) ^ ( ( sX - 1 ) / sX ) + ( 1 - aX ) * ( AL * ( hBar - h ) / AL0 / ( hBar - h0 ) ) ^ ( ( sX - 1 ) / sX ) ) ^ ( sX / ( sX - 1 ) );
-    #X_LEAD = X0 * ( aX * ( AZ_LEAD * Z_LEAD / AZ0 / Z0 ) ^ ( ( sX - 1 ) / sX ) + ( 1 - aX ) * ( AL_LEAD * ( hBar - h_LEAD ) / AL0 / ( hBar - h0 ) ) ^ ( ( sX - 1 ) / sX ) ) ^ ( sX / ( sX - 1 ) );
+    #X = X0 * ( aX * ( AZ * Z / AZ0 / Z0 ) ^ ( ( sX - 1 ) / sX ) + ( 1 - aX ) * ( AL * max( 1e-8, hBar - h ) / AL0 / ( hBar - h0 ) ) ^ ( ( sX - 1 ) / sX ) ) ^ ( sX / ( sX - 1 ) );
+    #X_LEAD = X0 * ( aX * ( AZ_LEAD * Z_LEAD / AZ0 / Z0 ) ^ ( ( sX - 1 ) / sX ) + ( 1 - aX ) * ( AL_LEAD * max( 1e-8, hBar - h_LEAD ) / AL0 / ( hBar - h0 ) ) ^ ( ( sX - 1 ) / sX ) ) ^ ( sX / ( sX - 1 ) );
 
     #SR = aY * PY / PK * Y0 * ( Y / Y0 ) ^ ( 1 / sY ) * ( AK * Kt / AK0 / Kt0 ) ^ ( ( sY - 1 ) / sY ) / Kt;
     #SR_LEAD = aY * PY_LEAD / PK_LEAD * Y0 * ( Y_LEAD / Y0 ) ^ ( 1 / sY ) * ( AK_LEAD * Kt_LEAD / AK0 / Kt0 ) ^ ( ( sY - 1 ) / sY ) / Kt_LEAD;
@@ -512,7 +512,7 @@ model;
     log( Y ) = log( Y0 * ( aY * ( AK * Kt / AK0 / Kt0 ) ^ ( ( sY - 1 ) / sY ) + ( 1 - aY ) * ( AH * Ht / AH0 / H0 ) ^ ( ( sY - 1 ) / sY ) ) ^ ( sY / ( sY - 1 ) ) );
     // Y_LEAD = Y0 * ( aY * ( AK_LEAD * Kt_LEAD / AK0 / Kt0 ) ^ ( ( sY - 1 ) / sY ) + ( 1 - aY ) * ( AH_LEAD * Ht_LEAD / AH0 / H0 ) ^ ( ( sY - 1 ) / sY ) ) ^ ( sY / ( sY - 1 ) );   
 
-    #W = ( 1 - aX ) / ( 1 - tauH ) * lambdaX / lambdaB * X0 * ( X / X0 ) ^ ( 1 / sX ) * ( AL * ( hBar - h ) / AL0 / ( hBar - h0 ) ) ^ ( ( sX - 1 ) / sX ) / ( hBar - h );
+    #W = ( 1 - aX ) / ( 1 - tauH ) * lambdaX / lambdaB * X0 * ( X / X0 ) ^ ( 1 / sX ) * ( AL * max( 1e-8, hBar - h ) / AL0 / ( hBar - h0 ) ) ^ ( ( sX - 1 ) / sX ) / max( 1e-8, hBar - h );
     
     log( K ) = log( ( 1 - delta ) * K_LAG + ( 1 - delta / 2 ) * Omega * I );
         
@@ -674,7 +674,7 @@ steady_state_model;
         t131 = exp(t128 * t127 * t125 * (-nu * t108 + nu * t122 + (t79 * t1) - t88 * t1 + t108));
         t134 = Y_ ^ (t128 * t125);
         t141 = (-0.1e1 / (-1 + aY) * (-t131 * aY + t134)) ^ (0.1e1 / t125 * sY);
-        H_ = H0_ / AH_ * t141;
+        H_ = min( N_ * hBar - 1e-8, H0_ / AH_ * t141 );
         U_ = exp(t127 * t107);
 
         h_ = H_ / N_;
@@ -685,16 +685,16 @@ steady_state_model;
         Kt_ = U_ * ( K_ + kappa * Omega_ * I_ );
         G_ = tauGE_ * ( 1 - tauE_ ) * PY_ * Y_ / PG_;
         E_ = tauGE_ * tauE_ * PY_ * Y_ / PE_;
-        C_ = 1 / PC_ * ( PY_ * Y_ - ( PI_ * I_ + PG_ * G_ + PE_ * E_ - xi_ * log( 1 - U_ ^ nu ) * PK_ * K_ ) );
+        C_ = max( 1e-8, 1 / PC_ * ( PY_ * Y_ - ( PI_ * I_ + PG_ * G_ + PE_ * E_ - xi_ * log( 1 - U_ ^ nu ) * PK_ * K_ ) ) );
         Z_ = ( aZ * ( AC_ * C_ * N0 / 1 / N_ / C0 ) ^ ( ( sZ - 1 ) / sZ ) + ( 1 - aZ ) * ( AG_ * G_ * N0 / 1 / N_ / G0 ) ^ ( ( sZ - 1 ) / sZ ) ) ^ ( sZ / ( sZ - 1 ) );
-        X_ = ( aX * ( AZ_ * Z_ / 1 ) ^ ( ( sX - 1 ) / sX ) + ( 1 - aX ) * ( AL_ * ( hBar - h_ ) / 1 / ( hBar - h0 ) ) ^ ( ( sX - 1 ) / sX ) ) ^ ( sX / ( sX - 1 ) );
+        X_ = ( aX * ( AZ_ * Z_ / 1 ) ^ ( ( sX - 1 ) / sX ) + ( 1 - aX ) * ( AL_ * max( 1e-8, hBar - h_ ) / 1 / ( hBar - h0 ) ) ^ ( ( sX - 1 ) / sX ) ) ^ ( sX / ( sX - 1 ) );
         lambdaX_ = X_ ^ ( - 1 / sV );
         lambdaZ_ = aX * lambdaX_ * ( X_ ) ^ ( 1 / sX ) * ( AZ_ * Z_ / 1 ) ^ ( ( sX - 1 ) / sX ) / Z_;
         lambdaB_ = aZ * ( 1 - tauC_ ) * lambdaZ_ * ( Z_ ) ^ ( 1 / sZ ) * ( AC_ * C_ * N0 / 1 / N_ / C0 ) ^ ( ( sZ - 1 ) / sZ ) * N_ / C_;
         
         // To check
         // Y_ = ( aY * ( AK_ * Kt_ / 1 / Kt0_ ) ^ ( ( sY - 1 ) / sY ) + ( 1 - aY ) * ( AH_ * H_ / 1 / H0_ ) ^ ( ( sY - 1 ) / sY ) ) ^ ( sY / ( sY - 1 ) );
-        // ( 1 - aY ) * PY_ / PC_ * ( Y_ ) ^ ( 1 / sY ) * ( AH_ * H_ / 1 / H0_ ) ^ ( ( sY - 1 ) / sY ) / H_ = ( 1 - aX ) / ( 1 - tauH_ ) * lambdaX_ / lambdaB_ * ( X_ ) ^ ( 1 / sX ) * ( AL_ * ( hBar - h_ ) / 1 / ( hBar - h0 ) ) ^ ( ( sX - 1 ) / sX ) / ( hBar - h_ );
+        // ( 1 - aY ) * PY_ / PC_ * ( Y_ ) ^ ( 1 / sY ) * ( AH_ * H_ / 1 / H0_ ) ^ ( ( sY - 1 ) / sY ) / H_ = ( 1 - aX ) / ( 1 - tauH_ ) * lambdaX_ / lambdaB_ * ( X_ ) ^ ( 1 / sX ) * ( AL_ * max( 1e-8, hBar - h_ ) / 1 / ( hBar - h0 ) ) ^ ( ( sX - 1 ) / sX ) / max( 1e-8, hBar - h_ );
         // ( 1 - tauK_ ) * SR_ * Kt_ * ( 1 - U_ ^ nu ) = nu * xi_ * K_ * U_ ^ nu;
 
     @#else

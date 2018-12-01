@@ -95,7 +95,7 @@ function Out = GetResids( In, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, 
     t131 = exp(t128 .* t127 .* t125 .* (-nu .* t108 + nu .* t122 + (t79 .* t1) - t88 .* t1 + t108));
     t134 = Y_ .^ (t128 .* t125);
     t141 = (-0.1e1 ./ (-1 + aY) .* (-t131 .* aY + t134)) .^ (0.1e1 ./ t125 .* sY);
-    H_ = H0_ ./ AH_ .* AH0 .* t141;
+    H_ = min( N_ * hBar - 1e-8, H0_ ./ AH_ .* AH0 .* t141 );
     U_ = exp(t127 .* t107);
         
     h_ = H_ ./ N_;
@@ -108,14 +108,14 @@ function Out = GetResids( In, hBar, kappa, nu, aX, aZ, aY, sV, sX, sZ, sY, Xi_, 
     % Kt_ = U_ .* ( K_ + kappa .* Omega_ .* I_ );
     G_ = tauGE_ .* ( 1 - tauE_ ) .* PY_ .* Y_ ./ PG_;
     E_ = tauGE_ .* tauE_ .* PY_ .* Y_ ./ PE_;
-    C_ = 1 ./ PC_ .* ( PY_ .* Y_ - ( PI_ .* I_ + PG_ .* G_ + PE_ .* E_ - xi_ .* log( 1 - U_ .^ nu ) .* PK_ .* K_ ) );
+    C_ = max( 1e-8, 1 ./ PC_ .* ( PY_ .* Y_ - ( PI_ .* I_ + PG_ .* G_ + PE_ .* E_ - xi_ .* log( 1 - U_ .^ nu ) .* PK_ .* K_ ) ) );
     Z_ = ( aZ .* ( AC_ .* C_ .* N0 ./ AC0 ./ N_ ./ C0 ) .^ ( ( sZ - 1 ) ./ sZ ) + ( 1 - aZ ) .* ( AG_ .* G_ .* N0 ./ AG0 ./ N_ ./ G0 ) .^ ( ( sZ - 1 ) ./ sZ ) ) .^ ( sZ ./ ( sZ - 1 ) );
-    X_ = ( aX .* ( AZ_ .* Z_ ./ AZ0 ) .^ ( ( sX - 1 ) ./ sX ) + ( 1 - aX ) .* ( AL_ .* ( hBar - h_ ) ./ AL0 ./ ( hBar - h0 ) ) .^ ( ( sX - 1 ) ./ sX ) ) .^ ( sX ./ ( sX - 1 ) );
+    X_ = ( aX .* ( AZ_ .* Z_ ./ AZ0 ) .^ ( ( sX - 1 ) ./ sX ) + ( 1 - aX ) .* ( AL_ .* max( 1e-8, hBar - h_ ) ./ AL0 ./ ( hBar - h0 ) ) .^ ( ( sX - 1 ) ./ sX ) ) .^ ( sX ./ ( sX - 1 ) );
     lambdaX_ = X_ .^ ( - 1 ./ sV );
     lambdaZ_ = aX .* lambdaX_ .* ( X_ ) .^ ( 1 ./ sX ) .* ( AZ_ .* Z_ ./ AZ0 ) .^ ( ( sX - 1 ) ./ sX ) ./ Z_;
     lambdaB_ = aZ .* ( 1 - tauC_ ) .* lambdaZ_ .* ( Z_ ) .^ ( 1 ./ sZ ) .* ( AC_ .* C_ .* N0 ./ AC0 ./ N_ ./ C0 ) .^ ( ( sZ - 1 ) ./ sZ ) .* N_ ./ C_;
         
-    Out = ( 1 - aX ) ./ ( 1 - tauH_ ) .* lambdaX_ ./ lambdaB_ .* ( X_ ) .^ ( 1 ./ sX ) .* ( AL_ .* ( hBar - h_ ) ./ AL0 ./ ( hBar - h0 ) ) .^ ( ( sX - 1 ) ./ sX ) ./ ( hBar - h_ ) ./ ( ( 1 - aY ) .* PY_ ./ PC_ .* ( Y_ ) .^ ( 1 ./ sY ) .* ( AH_ .* H_ ./ AH0 ./ H0_ ) .^ ( ( sY - 1 ) ./ sY ) ./ H_ ) - 1;
+    Out = ( 1 - aX ) ./ ( 1 - tauH_ ) .* lambdaX_ ./ lambdaB_ .* ( X_ ) .^ ( 1 ./ sX ) .* ( AL_ .* max( 1e-8, hBar - h_ ) ./ AL0 ./ ( hBar - h0 ) ) .^ ( ( sX - 1 ) ./ sX ) ./ max( 1e-8, hBar - h_ ) ./ ( ( 1 - aY ) .* PY_ ./ PC_ .* ( Y_ ) .^ ( 1 ./ sY ) .* ( AH_ .* H_ ./ AH0 ./ H0_ ) .^ ( ( sY - 1 ) ./ sY ) ./ H_ ) - 1;
     
     Out( imag( Out ) ~= 0 ) = NaN;
     
