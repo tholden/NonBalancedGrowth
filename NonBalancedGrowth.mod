@@ -802,7 +802,7 @@ end;
 
 @#endif
 
-options_.qz_criterium = 1 + 1e-5;
+options_.qz_criterium = 1 + 1e-4;
 options_.endogenous_qz_criterium = 1;
 
 steady;
