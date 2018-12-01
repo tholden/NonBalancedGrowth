@@ -1,13 +1,14 @@
 @#define ValueFunction          = 0
 @#define RandomParamInit        = 1
 @#define IRFLength              = 40
-@#define Estimation             = 0
+@#define Estimation             = 1
 @#define CMAES                  = 1
 @#define Detrend                = 0
 @#define LoadCurrentBest        = 1
 @#define LoadInitParams         = 0
-@#define UseDLL                 = 0
-@#define GrowthIterations       = 0
+@#define UseDLL                 = 1
+@#define GrowthIterations       = 1
+@#define MeasurementError       = 0
 
 @#if Detrend
     @#define GeneralSteadyState = 0
@@ -371,26 +372,30 @@ Initial_log_PY = 8.1350968392448024246732529718429;
         Initial_log_AK, Initial_log_AK, -Inf, Inf;
         Initial_log_PY, Initial_log_PY, -Inf, Inf;
         
-        stderr log_K, 100, 0, Inf;
-        stderr log_H, 100, 0, Inf;
-        stderr log_C, 100, 0, Inf;
-        stderr log_I, 100, 0, Inf;
-        stderr log_G, 100, 0, Inf;
-        stderr log_NGDP, 100, 0, Inf;
-        stderr log_PC, 100, 0, Inf;
-        stderr log_PI, 100, 0, Inf;
-        stderr log_PG, 100, 0, Inf;
-        stderr log_R, 100, 0, Inf;
-        stderr log_U, 100, 0, Inf;
-        stderr log_N, 100, 0, Inf;
-        stderr log_T, 100, 0, Inf;
-        stderr log_G_GDP, 100, 0, Inf;
-        stderr log_LS, 100, 0, Inf;
-        stderr log_Omega, 100, 0, Inf;
+        @#if MeasurementError
+        
+            stderr log_K, 100, 0, Inf;
+            stderr log_H, 100, 0, Inf;
+            stderr log_C, 100, 0, Inf;
+            stderr log_I, 100, 0, Inf;
+            stderr log_G, 100, 0, Inf;
+            stderr log_NGDP, 100, 0, Inf;
+            stderr log_PC, 100, 0, Inf;
+            stderr log_PI, 100, 0, Inf;
+            stderr log_PG, 100, 0, Inf;
+            stderr log_R, 100, 0, Inf;
+            stderr log_U, 100, 0, Inf;
+            stderr log_N, 100, 0, Inf;
+            stderr log_T, 100, 0, Inf;
+            stderr log_G_GDP, 100, 0, Inf;
+            stderr log_LS, 100, 0, Inf;
+            stderr log_Omega, 100, 0, Inf;
+        
+        @#endif
             
     end;
     
-    @#if LoadCurrentBest
+    @#if LoadCurrentBest && MeasurementError
         estim_params_.var_endo( 1:16, 2 ) = best_xparam1( 1:16 );
     @#endif
     
@@ -796,6 +801,7 @@ end;
 
     @#if GrowthIterations
         options_.non_bgp_growth_iterations = 20;
+        options_.dynatol.f = 1e300;
     @#else
         options_.non_bgp_growth_iterations = 0;
     @#endif
