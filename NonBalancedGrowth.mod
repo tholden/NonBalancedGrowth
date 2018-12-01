@@ -1,10 +1,10 @@
 @#define ValueFunction          = 0
 @#define RandomParamInit        = 1
 @#define IRFLength              = 40
-@#define Estimation             = 0
+@#define Estimation             = 1
 @#define CMAES                  = 1
 @#define Detrend                = 0
-@#define LoadCurrentBest        = 1
+@#define LoadCurrentBest        = 0
 @#define LoadInitParams         = 0
 @#define UseDLL                 = 1
 @#define GrowthIterations       = 1
@@ -46,10 +46,13 @@ U0        = 0.80977743586948125464886061308789066970348358154296875;
 @#define EndoVariables = EndoVariables + [ "E", "0", "Inf" ]
 
 @#define EndoVariables = EndoVariables + [ "K", "0", "Inf" ]
-@#define EndoVariables = EndoVariables + [ "H", "0", "Inf" ]
-@#define EndoVariables = EndoVariables + [ "U", "0", "Inf" ]
 @#define EndoVariables = EndoVariables + [ "R", "0", "Inf" ]
 
+@#define EndoVariables = EndoVariables + [ "ht", "0", "1" ]
+@#define EndoVariables = EndoVariables + [ "Ut", "0", "1" ]
+
+@#define EndoVariables = EndoVariables + [ "H", "0", "Inf" ]
+@#define EndoVariables = EndoVariables + [ "U", "0", "Inf" ]
 @#define EndoVariables = EndoVariables + [ "LS", "0", "Inf" ]
 @#define EndoVariables = EndoVariables + [ "T", "0", "Inf" ]
 @#define EndoVariables = EndoVariables + [ "G_GDP", "0", "Inf" ]
@@ -94,7 +97,7 @@ U0        = 0.80977743586948125464886061308789066970348358154296875;
 
 tauGEt_STEADY = -log( 2 / ( 0.213745098247544 + 1 ) - 1 );
 
-@#define LogI1ShockProcesses = [ "N", "delta", "xi", "thetaK", "thetaI", "Omega", "AX", "AF", "AZ", "AL", "AC", "AG", "AK", "AH", "PY" ]
+@#define LogI1ShockProcesses = [ "N", "deltat", "xi", "thetaK", "thetaI", "Omega", "AX", "AF", "AZ", "AL", "AC", "AG", "AK", "AH", "PY" ]
 
 @#define PriceVars = [ "C", "I", "G", "E" ]
 
@@ -141,10 +144,10 @@ PE_STEADY = 11.316876658901950492008836590684950351715087890625;
 
 @#endfor
 
-N_STEADY       = N0;
+N_STEADY     = N0;
 Omega_STEADY = Omega0;
 
-delta_STEADY   = 0.1;
+deltat_STEADY  = 1 / ( 1 / 0.1 - 1 );
 xi_STEADY      = 0.0703741487211254;
 thetaK_STEADY  = 0.1;
 thetaI_STEADY  = 0.05;
@@ -200,14 +203,14 @@ beta  = 1 - aV;
 
 @#define CESProductivityVars = [ "AX", "AF", "AZ", "AL", "AC", "AG", "AK", "AH" ]
 
-@#define EstimationFixedSteady = [ "N", "delta", "xi", "Omega", "GPY" ] + CESProductivityVars + PriceLogI1ShockProcesses
+@#define EstimationFixedSteady = [ "N", "deltat", "xi", "Omega", "GPY" ] + CESProductivityVars + PriceLogI1ShockProcesses
 
 @#define ThetaVariables = [ "thetaK", "thetaI" ]
 
 @#include "CreateShocks.mod"
 @#include "ClassifyDeclare.mod"
 
-parameters Initial_level_tauGEt Initial_level_tauEt Initial_level_tauHt Initial_level_tauCt Initial_level_tauKt Initial_level_tauIt Initial_level_tauYt Initial_log_PCt Initial_log_PIt Initial_log_PGt Initial_log_PEt Initial_log_N Initial_log_delta Initial_log_xi Initial_log_thetaK Initial_log_thetaI Initial_log_Omega Initial_log_AX Initial_log_AF Initial_log_AH Initial_log_AZ Initial_log_AL Initial_log_AC Initial_log_AG Initial_log_AK Initial_log_PY;
+parameters Initial_level_tauGEt Initial_level_tauEt Initial_level_tauHt Initial_level_tauCt Initial_level_tauKt Initial_level_tauIt Initial_level_tauYt Initial_log_PCt Initial_log_PIt Initial_log_PGt Initial_log_PEt Initial_log_N Initial_log_deltat Initial_log_xi Initial_log_thetaK Initial_log_thetaI Initial_log_Omega Initial_log_AX Initial_log_AF Initial_log_AH Initial_log_AZ Initial_log_AL Initial_log_AC Initial_log_AG Initial_log_AK Initial_log_PY;
 
 Initial_level_tauGEt = 0.3636409520570230147207269055798;
 Initial_level_tauEt = 0.067676425207796431227080802273122;
@@ -221,7 +224,7 @@ Initial_log_PIt = -5.4497332195831296175470015441533;
 Initial_log_PGt = -5.7088017180654677673601327114739;
 Initial_log_PEt = -5.7088017180654677673601327114739;
 Initial_log_N = -1.430541179190143896704512371798;
-Initial_log_delta = -3.6198027589576429186024597584037;
+Initial_log_deltat = -log( 1 / exp( -3.6198027589576429186024597584037 ) - 1 );
 Initial_log_xi = -2.3237213962137608369573626987403;
 Initial_log_thetaK = 2.0066560087511180476838035247056;
 Initial_log_thetaI = -8.9717174095365983532701648073271;
@@ -360,7 +363,7 @@ Initial_log_PY = 8.1350968392448024246732529718429;
         Initial_log_PGt, Initial_log_PGt, -Inf, Inf;
         Initial_log_PEt, Initial_log_PEt, -Inf, Inf;
         Initial_log_N, Initial_log_N, -Inf, Inf;
-        Initial_log_delta, Initial_log_delta, -Inf, Inf;
+        Initial_log_deltat, Initial_log_deltat, -Inf, Inf;
         Initial_log_xi, Initial_log_xi, -Inf, Inf;
         Initial_log_thetaK, Initial_log_thetaK, -Inf, Inf;
         Initial_log_thetaI, Initial_log_thetaI, -Inf, Inf;
@@ -431,14 +434,18 @@ model;
         #@{CESProductivityVar}0 = 1;
 
     @#endfor
+    
+    #delta_LAG  = 1 / ( 1 + 1 / deltat_LAG );
+    #delta      = 1 / ( 1 + 1 / deltat );
+    #delta_LEAD = 1 / ( 1 + 1 / deltat_LEAD );
 
     #Kt0 = U0 * @{Kt0OverU0};
 
     #H0 = h0 * N0;
 
-    #h_LAG = H_LAG / N_LAG;
-    #h = H / N;
-    #h_LEAD = H_LEAD / N_LEAD;
+    #h_LAG  = ht_LAG * hBar;
+    #h      = ht * hBar;
+    #h_LEAD = ht_LEAD * hBar;
 
     @#for LogI1ShockProcess in LogI1ShockProcesses
     
@@ -468,16 +475,16 @@ model;
         [ dynamic ] @{EndoVariableName} = @{EndoVariableName}_LAG + D@{EndoVariableName};
         [ static  ] @{EndoVariableName} = @{EndoVariableName}_STEADY;
 
-        #@{TaxVar}      = 2 / ( 1 + exp( -( phi_@{Tax} * log( G_GDP      ) + psi_@{Tax} * log( h      / h_LAG ) + chi_@{Tax} * log( U      / U_LAG ) + @{EndoVariableName} ) ) ) - 1;
-        #@{TaxVar}_LEAD = 2 / ( 1 + exp( -( phi_@{Tax} * log( G_GDP_LEAD ) + psi_@{Tax} * log( h_LEAD / h     ) + chi_@{Tax} * log( U_LEAD / U     ) + @{EndoVariableName} ) ) ) - 1;
+        #@{TaxVar}      = 2 / ( 1 + exp( -( phi_@{Tax} * log( G_GDP      ) + psi_@{Tax} * log( h      / h_LAG ) + chi_@{Tax} * log( Ut      / Ut_LAG ) + @{EndoVariableName} ) ) ) - 1;
+        #@{TaxVar}_LEAD = 2 / ( 1 + exp( -( phi_@{Tax} * log( G_GDP_LEAD ) + psi_@{Tax} * log( h_LEAD / h     ) + chi_@{Tax} * log( Ut_LEAD / Ut     ) + @{EndoVariableName} ) ) ) - 1;
         
     @#endfor
     
     #PK = PI / Omega;
     #PK_LEAD = PI_LEAD / Omega_LEAD;
     
-    #Kt = U * ( K_LAG + kappa * Omega * I );
-    #Kt_LEAD = U_LEAD * ( K + kappa * Omega_LEAD * I_LEAD );
+    #Kt = Ut * ( K_LAG + kappa * Omega * I );
+    #Kt_LEAD = Ut_LEAD * ( K + kappa * Omega_LEAD * I_LEAD );
     
     #Z = Z0 * ( aZ * ( AC * C * N0 / AC0 / N / C0 ) ^ ( ( sZ - 1 ) / sZ ) + ( 1 - aZ ) * ( AG * G * N0 / AG0 / N / G0 ) ^ ( ( sZ - 1 ) / sZ ) ) ^ ( sZ / ( sZ - 1 ) );
     #Z_LEAD = Z0 * ( aZ * ( AC_LEAD * C_LEAD * N0 / AC0 / N_LEAD / C0 ) ^ ( ( sZ - 1 ) / sZ ) + ( 1 - aZ ) * ( AG_LEAD * G_LEAD * N0 / AG0 / N_LEAD / G0 ) ^ ( ( sZ - 1 ) / sZ ) ) ^ ( sZ / ( sZ - 1 ) );
@@ -499,23 +506,26 @@ model;
     
     #Xi_LEAD = beta * AF ^ ( ( sV - 1 ) / sV ) * GN_LEAD ^ ( eta - 1 ) * GAX_LEAD ^ ( ( sV - 1 ) / sV ) * lambdaB_LEAD * PC / lambdaB / PC_LEAD;
     
-    log( Y ) = log( Y0 * ( aY * ( AK * Kt / AK0 / Kt0 ) ^ ( ( sY - 1 ) / sY ) + ( 1 - aY ) * ( AH * H / AH0 / H0 ) ^ ( ( sY - 1 ) / sY ) ) ^ ( sY / ( sY - 1 ) ) );
-    // Y_LEAD = Y0 * ( aY * ( AK_LEAD * Kt_LEAD / AK0 / Kt0 ) ^ ( ( sY - 1 ) / sY ) + ( 1 - aY ) * ( AH_LEAD * H_LEAD / AH0 / H0 ) ^ ( ( sY - 1 ) / sY ) ) ^ ( sY / ( sY - 1 ) );   
+    #Ht      = h * N;
+    #Ht_LEAD = h_LEAD * N_LEAD;
+    
+    log( Y ) = log( Y0 * ( aY * ( AK * Kt / AK0 / Kt0 ) ^ ( ( sY - 1 ) / sY ) + ( 1 - aY ) * ( AH * Ht / AH0 / H0 ) ^ ( ( sY - 1 ) / sY ) ) ^ ( sY / ( sY - 1 ) ) );
+    // Y_LEAD = Y0 * ( aY * ( AK_LEAD * Kt_LEAD / AK0 / Kt0 ) ^ ( ( sY - 1 ) / sY ) + ( 1 - aY ) * ( AH_LEAD * Ht_LEAD / AH0 / H0 ) ^ ( ( sY - 1 ) / sY ) ) ^ ( sY / ( sY - 1 ) );   
 
     #W = ( 1 - aX ) / ( 1 - tauH ) * lambdaX / lambdaB * X0 * ( X / X0 ) ^ ( 1 / sX ) * ( AL * ( hBar - h ) / AL0 / ( hBar - h0 ) ) ^ ( ( sX - 1 ) / sX ) / ( hBar - h );
     
     log( K ) = log( ( 1 - delta ) * K_LAG + ( 1 - delta / 2 ) * Omega * I );
         
-    lambdaK + thetaK * log( K / K_LAG ) * K_LAG / K + Xi_LEAD * PK_LEAD / PK * ( thetaK_LEAD / 2 * log( K_LEAD / K ) ^ 2 + thetaI_LEAD / 2 * log( I_LEAD / I ) ^ 2 - xi_LEAD * log( 1 - U_LEAD ^ nu ) ) 
-        = Xi_LEAD * PK_LEAD / PK * ( lambdaK_LEAD * ( 1 - delta_LEAD ) + ( 1 - tauK_LEAD ) * SR_LEAD * U_LEAD + thetaK_LEAD * log( K_LEAD / K ) );
+    lambdaK + thetaK * log( K / K_LAG ) * K_LAG / K + Xi_LEAD * PK_LEAD / PK * ( thetaK_LEAD / 2 * log( K_LEAD / K ) ^ 2 + thetaI_LEAD / 2 * log( I_LEAD / I ) ^ 2 - xi_LEAD * log( 1 - Ut_LEAD ^ nu ) ) 
+        = Xi_LEAD * PK_LEAD / PK * ( lambdaK_LEAD * ( 1 - delta_LEAD ) + ( 1 - tauK_LEAD ) * SR_LEAD * Ut_LEAD + thetaK_LEAD * log( K_LEAD / K ) );
     
-    lambdaK * ( 1 - delta / 2 ) * Omega + ( 1 - tauK ) * SR * U * kappa * Omega + Xi_LEAD * PK_LEAD / PK * thetaI_LEAD * log( I_LEAD / I ) * K / I = 1 / ( 1 - tauI ) * Omega + thetaI * log( I / I_LAG ) * K_LAG / I;
+    lambdaK * ( 1 - delta / 2 ) * Omega + ( 1 - tauK ) * SR * Ut * kappa * Omega + Xi_LEAD * PK_LEAD / PK * thetaI_LEAD * log( I_LEAD / I ) * K / I = 1 / ( 1 - tauI ) * Omega + thetaI * log( I / I_LAG ) * K_LAG / I;
     
     1 = R * Xi_LEAD;
 
-    log( ( 1 - tauK ) * SR * Kt * ( 1 - U ^ nu ) ) = log( nu * xi * K_LAG * U ^ nu );
+    log( ( 1 - tauK ) * SR * Kt * ( 1 - Ut ^ nu ) ) = log( nu * xi * K_LAG * Ut ^ nu );
     
-    log( W ) = log( ( 1 - aY ) * PY / PC * Y0 * ( Y / Y0 ) ^ ( 1 / sY ) * ( AH * H / AH0 / H0 ) ^ ( ( sY - 1 ) / sY ) / H );
+    log( W ) = log( ( 1 - aY ) * PY / PC * Y0 * ( Y / Y0 ) ^ ( 1 / sY ) * ( AH * Ht / AH0 / H0 ) ^ ( ( sY - 1 ) / sY ) / ( Ht ) );
     
     log( G ) = log( tauGE * ( 1 - tauE ) * PY * Y / PG );
     
@@ -527,13 +537,16 @@ model;
     
     // GP_GDP = sqrt( ( PC * C + PI * I + PG * G + PE * E ) / ( PC_LAG * C + PI_LAG * I + PG_LAG * G + PE_LAG * E ) * ( PC * C_LAG + PI * I_LAG + PG * G_LAG + PE * E_LAG ) / ( PC_LAG * C_LAG + PI_LAG * I_LAG + PG_LAG * G_LAG + PE_LAG * E_LAG ) );
 
-    log( PY * Y ) = log( PC * C + PI * I + PG * G + PE * E + thetaK / 2 * log( K / K_LAG ) ^ 2 * PK * K_LAG + thetaI / 2 * log( I / I_LAG ) ^ 2 * PK * K_LAG - xi * log( 1 - U ^ nu ) * PK * K_LAG ); // = log( PK * SR * Kt + PC * W * H )
+    log( PY * Y ) = log( PC * C + PI * I + PG * G + PE * E + thetaK / 2 * log( K / K_LAG ) ^ 2 * PK * K_LAG + thetaI / 2 * log( I / I_LAG ) ^ 2 * PK * K_LAG - xi * log( 1 - Ut ^ nu ) * PK * K_LAG ); // = log( PK * SR * Kt + PC * W * Ht )
     
-    log( T ) = log( tauC / ( 1 - tauC ) * PC * C + tauI / ( 1 - tauI ) * PI * I + tauY * PY * Y + tauK * PK * SR * Kt + tauH * PC * W * H );
+    log( T ) = log( tauC / ( 1 - tauC ) * PC * C + tauI / ( 1 - tauI ) * PI * I + tauY * PY * Y + tauK * PK * SR * Kt + tauH * PC * W * Ht );
     
     // CFC = PK * ( delta * K_LAG + delta / 2 * I * Omega );
     
-    log( LS ) = log( PC * W * H / NGDP );
+    log( LS ) = log( PC * W * Ht / NGDP );
+    
+    U = Ut;
+    H = Ht;
     
     @#if ValueFunction
     
@@ -612,6 +625,8 @@ steady_state_model;
 
     @#endfor
     
+    delta_      = 1 / ( 1 + 1 / deltat_ );
+    
     PK_ = PI_ / Omega_;
 
     Xi_ = beta * AF_ ^ ( ( sV - 1 ) / sV ) * GN_ ^ ( eta - 1 ) * GAX_ ^ ( ( sV - 1 ) / sV );
@@ -645,7 +660,7 @@ steady_state_model;
         t61 = -2 + delta_;
         t66 = 1 / (2 * t27 - delta_ + 2);
         t69 = exp(-(t66 / t61 / (-1 + tauI_) / xi_ * t55 * (t35 + t53)));
-        t79 = lambertw(-1,-t55 * t66 * nu * (2 * t15 - t14 - 2 * t24 + 2 * Xi_ + 2 * kappa) * t69);
+        t79 = lambertwM1(-t55 * t66 * nu * (2 * t15 - t14 - 2 * t24 + 2 * Xi_ + 2 * kappa) * t69);
         t88 = log(t66 * nu * t69 / (-1 + tauK_) * xi_ * t61);
         t90 = t79 * Xi_;
         t107 = log(t55 * t66 / t79 * (-(delta_ * t90) - nu * t14 - 0.2e1 * nu * t24 + (2 * t9 * t14) + (2 * t27 * t90) + (2 * t36) + (2 * t9) + (2 * t90)));
@@ -739,8 +754,10 @@ steady_state_model;
         SR_ = (-xi_*Xi_*PK_*(-1+tauI_)*(-2+delta_)*log(1-U_^nu)+2*Xi_*(delta_-1)*PK_+2*PK_)/((2*(-1+tauK_))*(-1+tauI_)*(Xi_*((kappa-1/2)*delta_-kappa+1)*PK_+PK_*kappa)*U_);
         lambdaB_ = aZ * ( 1 - tauC_ ) * lambdaZ_ * ( Z_ ) ^ ( 1 / sZ ) * ( AC_ * C_ * N0 / 1 / N_ / C0 ) ^ ( ( sZ - 1 ) / sZ ) * N_ / C_;
 
+        deltat_ = 1 / ( 1 / delta_ - 1 );
+
         xi_STEADY = xi_;
-        delta_STEADY = delta_;
+        deltat_STEADY = deltat_;
         tauGEt_STEADY = tauGEt_;
         PY_STEADY = PY_;
 
@@ -762,7 +779,10 @@ steady_state_model;
     NGDP_ = PC_ * C_ + PI_ * I_ + PG_ * G_ + PE_ * E_;
     // CFC_ = PK_ * ( delta_ * K_ + delta_ / 2 * I_ * Omega_ );
     LS_ = PC_ * W_ * H_ / NGDP_;
-
+    
+    Ut_ = U_;
+    ht_ = h_ / hBar;
+    
     @#if ValueFunction
     
         Ft0_ = ( 1 - aV ) / beta;
