@@ -817,6 +817,7 @@ end;
 
     options_.non_bgp = 1;
     options_.accurate_nonstationarity = 1;
+    options_.accurate_nonstationarity_step_width = 0.1;
     options_.k_order_solver = 0;
 
     @#if GrowthIterations
