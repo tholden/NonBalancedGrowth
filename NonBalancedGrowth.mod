@@ -1,10 +1,11 @@
 @#define ValueFunction          = 0
 @#define RandomParamInit        = 1
-@#define IRFLength              = 40
-@#define Estimation             = 1
+@#define IRFLength              = 0
+@#define SimulationLength       = 50
+@#define Estimation             = 0
 @#define CMAES                  = 1
 @#define Detrend                = 0
-@#define LoadCurrentBest        = 0
+@#define LoadCurrentBest        = 1
 @#define LoadInitParams         = 0
 @#define UseDLL                 = 1
 @#define GrowthIterations       = 1
@@ -799,7 +800,9 @@ shocks;
     @#include "InsertNewShockBlockLines.mod"
 end;
 
-@#define VariableString = "log_C log_I log_G log_Y log_G_GDP log_H log_R log_U log_A0 log_A1 level_tau0 level_tau1"
+@#define OriginalVariableString = "log_C log_I log_G log_Y log_G_GDP log_H log_R log_U log_LS"
+
+@#define VariableString = OriginalVariableString + " log_A0 log_A1 level_tau0 level_tau1"
 
 @#for LogI1ShockProcess in LogI1ShockProcesses
 
@@ -867,4 +870,24 @@ save_params_and_steady_state( 'InitParams.txt' );
 
 @#endif
 
-stoch_simul( order = 1, periods = 0, irf = @{IRFLength}, nocorr, nodecomposition, nofunctions, nomoments, graph_format = none ) @{VariableString};
+@#if IRFLength > 0
+
+    stoch_simul( order = 1, periods = 0, irf = @{IRFLength}, nocorr, nodecomposition, nofunctions, nomoments, graph_format = none ) @{VariableString};
+    
+@#endif
+
+@#if SimulationLength > 0
+
+    M_.Sigma_e = zeros( size( M_.Sigma_e ) );
+
+    stoch_simul( order = 1, periods = @{SimulationLength}, drop = 0, irf = 0, nocorr, nodecomposition, nofunctions, nomoments, graph_format = none ) @{OriginalVariableString};
+    
+    [ ~, VarIndices ] = ismember( cellstr( var_list_ ), cellstr( M_.endo_names ) );
+    figure;
+    for i = 1 : length( VarIndices )
+        subplot( 3, 3, i );
+        plot( oo_.endo_simul( VarIndices( i ), : ).' );
+        title( var_list_( i, : ) );
+    end
+    
+@#endif
