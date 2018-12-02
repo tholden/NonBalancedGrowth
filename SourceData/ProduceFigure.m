@@ -34,6 +34,8 @@ axis square;
 
 title( 'Logarithm of real capital over real GDP.' );
 
+set( gcf, 'Position', [ 0 0 1920 1200 ] );
+
 savefig RelativePrices
 saveas( gcf, 'RelativePrices.emf' );
 

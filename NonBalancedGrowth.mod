@@ -896,6 +896,8 @@ save_params_and_steady_state( 'InitParams.txt' );
         axis square;
     end
     
+    set( gcf, 'Position', [ 0 0 1920 1200 ] );
+    
     savefig Simulation
     saveas( gcf, 'Simulation.emf' );
     
