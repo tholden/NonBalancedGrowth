@@ -9,7 +9,6 @@
 
 NonBalancedGrowth_*.*
 
-InitParams.txt
 lambertw_.m
 NonBalancedGrowth-macroexp.mod
 NonBalancedGrowth.m
