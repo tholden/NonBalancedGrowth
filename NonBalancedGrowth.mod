@@ -1,7 +1,7 @@
 @#define ValueFunction          = 0
 @#define RandomParamInit        = 1
 @#define IRFLength              = 0
-@#define SimulationLength       = 50
+@#define SimulationLength       = 40
 @#define Estimation             = 0
 @#define CMAES                  = 1
 @#define Detrend                = 0
@@ -800,7 +800,9 @@ shocks;
     @#include "InsertNewShockBlockLines.mod"
 end;
 
-@#define OriginalVariableString = "log_C log_I log_G log_Y log_G_GDP log_H log_R log_U log_LS"
+// log_C log_I log_G log_G_GDP log_U
+
+@#define OriginalVariableString = "log_Y logit_ht log_R log_LS"
 
 @#define VariableString = OriginalVariableString + " log_A0 log_A1 level_tau0 level_tau1"
 
@@ -883,11 +885,18 @@ save_params_and_steady_state( 'InitParams.txt' );
     stoch_simul( order = 2, pruning, periods = @{SimulationLength}, drop = 0, irf = 0, nocorr, nodecomposition, nofunctions, nomoments, graph_format = none ) @{OriginalVariableString};
     
     [ ~, VarIndices ] = ismember( cellstr( var_list_ ), cellstr( M_.endo_names ) );
+    
+    Titles = { 'Log output', 'Logit of hours relative to endowment', 'Log real interest rates', 'Log laobur share' };
+    
     figure;
     for i = 1 : length( VarIndices )
-        subplot( 3, 3, i );
+        subplot( 1, 4, i );
         plot( oo_.endo_simul( VarIndices( i ), : ).' );
-        title( var_list_( i, : ) );
+        title( Titles{ i } );
+        axis square;
     end
+    
+    savefig Simulation
+    saveas( gcf, 'Simulation.emf' );
     
 @#endif
