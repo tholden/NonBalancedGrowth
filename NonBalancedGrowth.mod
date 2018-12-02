@@ -8,7 +8,7 @@
 @#define LoadCurrentBest        = 1
 @#define LoadInitParams         = 0
 @#define UseDLL                 = 1
-@#define GrowthIterations       = 1
+@#define GrowthIterations       = 0
 @#define MeasurementError       = 0
 
 @#if Detrend
@@ -880,7 +880,7 @@ save_params_and_steady_state( 'InitParams.txt' );
 
     M_.Sigma_e = zeros( size( M_.Sigma_e ) );
 
-    stoch_simul( order = 1, periods = @{SimulationLength}, drop = 0, irf = 0, nocorr, nodecomposition, nofunctions, nomoments, graph_format = none ) @{OriginalVariableString};
+    stoch_simul( order = 2, pruning, periods = @{SimulationLength}, drop = 0, irf = 0, nocorr, nodecomposition, nofunctions, nomoments, graph_format = none ) @{OriginalVariableString};
     
     [ ~, VarIndices ] = ismember( cellstr( var_list_ ), cellstr( M_.endo_names ) );
     figure;
